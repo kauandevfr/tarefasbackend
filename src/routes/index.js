@@ -6,6 +6,17 @@ const loginSchema = require('../schemas/user/login');
 const routes = express();
 const multer = require('multer');
 const upload = multer({})
+const rateLimit = require("express-rate-limit");
+
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 10, // máximo 10 tentativas
+    message: {
+        message: "Muitas tentativas de login. Tente novamente em 15 minutos.",
+        code: "TOO_MANY_REQUESTS",
+        status: 429,
+    },
+});
 
 const authentication = require('../middlewares/authentication');
 const updateUserSchema = require('../schemas/user/update');
@@ -14,7 +25,8 @@ const addTaskSchema = require('../schemas/task/add');
 const updateTaskSchema = require('../schemas/task/update');
 
 routes.post('/user/register', validateRequest(registerUserSchema), registerUser);
-routes.post('/user/login', validateRequest(loginSchema), loginUser);
+routes.post("/user/login", loginLimiter, validateRequest(loginSchema), loginUser);
+routes.post("/refresh", refreshSession);
 
 routes.use(authentication)
 
@@ -30,6 +42,8 @@ routes.post('/task', validateRequest(addTaskSchema), registerTask);
 routes.put('/task/:id', validateRequest(updateTaskSchema), updateTask);
 routes.delete('/task/:id', deleteTask)
 
-routes.post("/refresh", refreshSession);
+
+
+
 
 module.exports = routes;

@@ -28,9 +28,19 @@ const deleteAllUserRefreshTokens = async (userId) => {
     await database("refresh_tokens").where({ user_id: userId }).del();
 };
 
+
+const cleanExpiredTokens = async () => {
+    try {
+        const deleted = await database("refresh_tokens").where("expires_at", "<", new Date()).del();
+        console.log(`Refresh tokens expirados removidos: ${deleted}`);
+    } catch (err) {
+        console.error("Erro ao limpar tokens expirados:", err);
+    }
+};
 module.exports = {
     generateAccessToken,
     generateRefreshToken,
     deleteRefreshToken,
     deleteAllUserRefreshTokens,
+    cleanExpiredTokens
 };
