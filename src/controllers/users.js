@@ -82,4 +82,21 @@ const loginUser = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser }
+const logoutUser = (req, res) => {
+    const isProd = process.env.NODE_ENV === "production";
+
+    res.clearCookie("access_token", {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
+        domain: isProd ? ".kauanrodrigues.com.br" : undefined,
+    });
+
+    return res.status(200).json({
+        message: "Logout realizado com sucesso.",
+        code: "LOGOUT_SUCCESS",
+        status: 200,
+    });
+};
+
+module.exports = { registerUser, loginUser, logoutUser }
