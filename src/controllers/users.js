@@ -103,4 +103,66 @@ const listUser = async (req, res) => {
     return res.status(200).json(req.user)
 };
 
-module.exports = { registerUser, loginUser, logoutUser, listUser }
+const updateUser = async (req, res) => {
+    const { name, email, phoneNumber, currentPassword, newPassword, theme } = req.body;
+    const { user } = req;
+
+    const updateData = {};
+
+    try {
+        if (newPassword) {
+            const validPassword = await bcrypt.compare(currentPassword, user.password);
+
+            if (!validPassword) {
+                return res.status(401).json({
+                    message: "A senha atual está incorreta.",
+                    code: "INVALID_CURRENT_PASSWORD",
+                    status: 401,
+                });
+            }
+
+            updateData.password = await bcrypt.hash(newPassword, 10);
+        }
+
+        if (email) {
+            const existingEmail = await knex("users")
+                .where({ email })
+                .whereNot({ id: user.id })
+                .first();
+
+            if (existingEmail) {
+                return res.status(409).json({
+                    message: "Email já cadastrado.",
+                    code: "EMAIL_ALREADY_EXISTS",
+                    status: 409,
+                });
+            }
+
+            updateData.email = email;
+        }
+
+        if (name) updateData.name = name;
+        if (phoneNumber) updateData.phonenumber = phoneNumber;
+        if (theme) updateData.theme = theme;
+
+        if (Object.keys(updateData).length === 0) {
+            return res.status(400).json({
+                message: "Nenhuma informação para atualizar.",
+                code: "NO_UPDATE_DATA",
+                status: 400,
+            });
+        }
+
+        await database("users").update(updateData).where({ id: user.id });
+
+        return res.status(200).json({
+            message: "Usuário atualizado com sucesso.",
+            code: "USER_UPDATED",
+            status: 200,
+        });
+    } catch (error) {
+        return validateError(error, res);
+    }
+};
+
+module.exports = { registerUser, loginUser, logoutUser, listUser, updateUser }
