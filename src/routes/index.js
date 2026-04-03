@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerUser, loginUser, logoutUser } = require('../controllers/users');
+const { registerUser, loginUser, logoutUser, listUser } = require('../controllers/users');
 const validateRequest = require('../middlewares/validateRequest');
 const registerUserSchema = require('../schemas/user/add');
 const loginSchema = require('../schemas/user/login');
@@ -13,5 +13,6 @@ routes.post('/user/login', validateRequest(loginSchema), loginUser);
 routes.use(authentication)
 
 routes.post('/user/logout', logoutUser);
+routes.get('/user', listUser);
 
 module.exports = routes;

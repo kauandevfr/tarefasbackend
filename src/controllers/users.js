@@ -99,4 +99,8 @@ const logoutUser = (req, res) => {
     });
 };
 
-module.exports = { registerUser, loginUser, logoutUser }
+const listUser = async (req, res) => {
+    return res.status(200).json(req.user)
+};
+
+module.exports = { registerUser, loginUser, logoutUser, listUser }
