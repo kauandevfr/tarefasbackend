@@ -254,4 +254,34 @@ const deleteAvatar = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, logoutUser, listUser, updateUser, uploadAvatar, deleteAvatar }
+const deleteUser = async (req, res) => {
+    const { id, avatar } = req.user;
+
+    try {
+        await database.transaction(async (trx) => {
+            await trx("tasks").where({ user_id: id }).del();
+            await trx("users").where({ id }).del();
+        });
+
+        if (avatar) {
+            const userDir = path.join(process.cwd(), "src", "assets", String(id));
+            try {
+                await fs.rm(userDir, { recursive: true, force: true });
+            } catch (err) {
+                if (err.code !== "ENOENT") {
+                    console.error("Erro ao excluir pasta do usuário:", err);
+                }
+            }
+        }
+
+        return res.status(200).json({
+            message: "Usuário excluído com sucesso.",
+            code: "USER_DELETED",
+            status: 200,
+        });
+    } catch (error) {
+        return validateError(error, res);
+    }
+};
+
+module.exports = { registerUser, loginUser, logoutUser, listUser, updateUser, uploadAvatar, deleteAvatar, deleteUser }
