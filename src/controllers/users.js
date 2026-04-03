@@ -220,4 +220,38 @@ const uploadAvatar = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, logoutUser, listUser, updateUser, uploadAvatar }
+const deleteAvatar = async (req, res) => {
+    try {
+        const { id, avatar } = req.user;
+
+        if (!avatar) {
+            return res.status(400).json({
+                message: "Nenhum avatar para remover.",
+                code: "AVATAR_NOT_FOUND",
+                status: 400,
+            });
+        }
+
+        const userDir = path.join(process.cwd(), "src", "assets", String(id));
+
+        try {
+            await fs.rm(userDir, { recursive: true, force: true });
+        } catch (err) {
+            if (err.code !== "ENOENT") {
+                console.error("Erro ao excluir avatar:", err);
+            }
+        }
+
+        await database("users").where({ id }).update({ avatar: null });
+
+        return res.status(200).json({
+            message: "Foto removida com sucesso.",
+            code: "AVATAR_DELETED",
+            status: 200,
+        });
+    } catch (err) {
+        return validateError(err, res);
+    }
+};
+
+module.exports = { registerUser, loginUser, logoutUser, listUser, updateUser, uploadAvatar, deleteAvatar }

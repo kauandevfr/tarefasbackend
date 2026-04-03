@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerUser, loginUser, logoutUser, listUser, updateUser, uploadAvatar } = require('../controllers/users');
+const { registerUser, loginUser, logoutUser, listUser, updateUser, uploadAvatar, deleteAvatar } = require('../controllers/users');
 const validateRequest = require('../middlewares/validateRequest');
 const registerUserSchema = require('../schemas/user/add');
 const loginSchema = require('../schemas/user/login');
@@ -19,5 +19,6 @@ routes.put('/user/update', validateRequest(updateUserSchema), updateUser);
 routes.post('/user/logout', logoutUser);
 routes.get('/user', listUser);
 routes.put("/user/avatar", upload.single('avatar'), uploadAvatar)
+routes.delete("/user/avatar", deleteAvatar)
 
 module.exports = routes;
