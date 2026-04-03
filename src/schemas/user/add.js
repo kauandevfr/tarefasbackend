@@ -1,7 +1,8 @@
 const joi = require('joi');
 
-const registerUserSchema = joi.object({
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#+\-_])[A-Za-z\d@$!%*?&#+\-_]{8,}$/;
 
+const registerUserSchema = joi.object({
     name: joi.string().trim().required().messages({
         "any.required": "Nome obrigatório.",
         "string.empty": "Nome obrigatório.",
@@ -13,11 +14,12 @@ const registerUserSchema = joi.object({
         "string.email": "Email no formato inválido.",
     }),
 
-    password: joi.string().min(6).trim().required().messages({
+    password: joi.string().trim().required().pattern(passwordRegex).messages({
         "any.required": "Senha obrigatória.",
         "string.empty": "Senha obrigatória.",
-        "string.min": "A senha precisa ter no mínimo 6 caracteres."
-    })
+        "string.pattern.base": "A senha precisa ter no mínimo 8 caracteres, 1 maiúscula, 1 minúscula, 1 número e 1 caractere especial.",
+    }),
 });
+
 
 module.exports = registerUserSchema;
