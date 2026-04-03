@@ -2,6 +2,9 @@ const database = require("../connections/database");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const validateError = require("../utils/validateError");
+const path = require("path");
+const fs = require("fs/promises");
+const sharp = require("sharp");
 
 const registerUser = async (req, res) => {
     const { name, email, password } = req.body;
@@ -165,4 +168,56 @@ const updateUser = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, logoutUser, listUser, updateUser }
+const uploadAvatar = async (req, res) => {
+    const avatar = req.file;
+    const { user } = req;
+
+    try {
+        if (!avatar) {
+            return res.status(400).json({
+                message: "O arquivo de avatar é obrigatório.",
+                code: "AVATAR_REQUIRED",
+                status: 400,
+            });
+        }
+
+        if (user.avatar) {
+            const oldPath = path.join(process.cwd(), "src", "assets", String(user.id));
+            try {
+                await fs.rm(oldPath, { recursive: true, force: true });
+            } catch (err) {
+                if (err.code !== "ENOENT") {
+                    console.error("Erro ao excluir avatar antigo:", err);
+                }
+            }
+        }
+
+        const dir = path.join(process.cwd(), "src", "assets", String(user.id));
+        await fs.mkdir(dir, { recursive: true });
+
+        const filename = `${Date.now()}.webp`;
+        const outPath = path.join(dir, filename);
+
+        const buffer = await sharp(avatar.buffer)
+            .rotate()
+            .webp({ quality: 82 })
+            .toBuffer();
+
+        await fs.writeFile(outPath, buffer);
+
+        const publicUrl = `${process.env.PUBLIC_URL}/assets/${user.id}/${filename}`;
+
+        await database("users").where({ id: user.id }).update({ avatar: publicUrl });
+
+        return res.status(200).json({
+            message: "Avatar atualizado com sucesso.",
+            code: "AVATAR_UPDATED",
+            status: 200,
+            data: { avatar: publicUrl },
+        });
+    } catch (error) {
+        return validateError(error, res);
+    }
+};
+
+module.exports = { registerUser, loginUser, logoutUser, listUser, updateUser, uploadAvatar }
