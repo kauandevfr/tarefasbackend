@@ -3,13 +3,11 @@ const jwt = require("jsonwebtoken");
 const validateError = require("../utils/validateError");
 
 const authentication = async (req, res, next) => {
-    const bearer = req.headers.authorization;
-    const cookieToken = req.cookies?.access_token;
-    const token = cookieToken || (bearer && bearer.split(" ")[1]);
+    const token = req.cookies?.access_token;
 
     if (!token) {
         return res.status(401).json({
-            message: "Acesso negado.",
+            message: "Token não encontrado.",
             code: "TOKEN_MISSING",
             status: 401,
         });

@@ -5,6 +5,7 @@ const validateError = require("../utils/validateError");
 const path = require("path");
 const fs = require("fs/promises");
 const sharp = require("sharp");
+const { deleteRefreshToken, generateAccessToken, generateRefreshToken } = require("../utils/tokens");
 
 const registerUser = async (req, res) => {
     const { name, email, password } = req.body;
@@ -63,16 +64,26 @@ const loginUser = async (req, res) => {
             });
         }
 
-        const token = jwt.sign({ id: user.id }, process.env.JWT_KEY, { expiresIn: "1d" });
+        const accessToken = generateAccessToken(user.id);
+        const refreshToken = await generateRefreshToken(user.id);
 
         const isProd = process.env.NODE_ENV === "production";
 
-        res.cookie("access_token", token, {
+        res.cookie("access_token", accessToken, {
             httpOnly: true,
             secure: isProd,
             sameSite: isProd ? "none" : "lax",
             domain: isProd ? ".kauanrodrigues.com.br" : undefined,
-            maxAge: 24 * 60 * 60 * 1000,
+            maxAge: 15 * 60 * 1000, // 15 min
+        });
+
+        res.cookie("refresh_token", refreshToken, {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? "none" : "lax",
+            domain: isProd ? ".kauanrodrigues.com.br" : undefined,
+            path: "/refresh",
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
         });
 
         return res.status(200).json({
@@ -85,14 +96,27 @@ const loginUser = async (req, res) => {
     }
 };
 
-const logoutUser = (req, res) => {
+const logoutUser = async (req, res) => {
     const isProd = process.env.NODE_ENV === "production";
+    const refreshToken = req.cookies?.refresh_token;
+
+    if (refreshToken) {
+        await deleteRefreshToken(refreshToken);
+    }
 
     res.clearCookie("access_token", {
         httpOnly: true,
         secure: isProd,
         sameSite: isProd ? "none" : "lax",
         domain: isProd ? ".kauanrodrigues.com.br" : undefined,
+    });
+
+    res.clearCookie("refresh_token", {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
+        domain: isProd ? ".kauanrodrigues.com.br" : undefined,
+        path: "/refresh",
     });
 
     return res.status(200).json({
@@ -128,7 +152,7 @@ const updateUser = async (req, res) => {
         }
 
         if (email) {
-            const existingEmail = await knex("users")
+            const existingEmail = await database("users")
                 .where({ email })
                 .whereNot({ id: user.id })
                 .first();
@@ -284,4 +308,63 @@ const deleteUser = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, logoutUser, listUser, updateUser, uploadAvatar, deleteAvatar, deleteUser }
+const refreshSession = async (req, res) => {
+    const token = req.cookies?.refresh_token;
+
+    if (!token) {
+        return res.status(401).json({
+            message: "Refresh token não encontrado.",
+            code: "REFRESH_TOKEN_MISSING",
+            status: 401,
+        });
+    }
+
+    try {
+        const stored = await knex("refresh_tokens").where({ token }).first();
+
+        if (!stored || new Date(stored.expires_at) < new Date()) {
+            if (stored) await deleteRefreshToken(token);
+
+            return res.status(401).json({
+                message: "Sessão expirada. Faça login novamente.",
+                code: "REFRESH_TOKEN_EXPIRED",
+                status: 401,
+            });
+        }
+
+        // Rotation: deleta o antigo e gera um novo
+        await deleteRefreshToken(token);
+
+        const newAccessToken = generateAccessToken(stored.user_id);
+        const newRefreshToken = await generateRefreshToken(stored.user_id);
+
+        const isProd = process.env.NODE_ENV === "production";
+
+        res.cookie("access_token", newAccessToken, {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? "none" : "lax",
+            domain: isProd ? ".kauanrodrigues.com.br" : undefined,
+            maxAge: 15 * 60 * 1000,
+        });
+
+        res.cookie("refresh_token", newRefreshToken, {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? "none" : "lax",
+            domain: isProd ? ".kauanrodrigues.com.br" : undefined,
+            path: "/refresh",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+
+        return res.status(200).json({
+            message: "Sessão renovada com sucesso.",
+            code: "SESSION_REFRESHED",
+            status: 200,
+        });
+    } catch (error) {
+        return validateError(error, res);
+    }
+};
+
+module.exports = { registerUser, loginUser, logoutUser, listUser, updateUser, uploadAvatar, deleteAvatar, deleteUser, refreshSession }

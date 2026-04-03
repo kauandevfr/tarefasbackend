@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerUser, loginUser, logoutUser, listUser, updateUser, uploadAvatar, deleteAvatar, deleteUser } = require('../controllers/users');
+const { registerUser, loginUser, logoutUser, listUser, updateUser, uploadAvatar, deleteAvatar, deleteUser, refreshSession } = require('../controllers/users');
 const validateRequest = require('../middlewares/validateRequest');
 const registerUserSchema = require('../schemas/user/add');
 const loginSchema = require('../schemas/user/login');
@@ -29,5 +29,7 @@ routes.get('/tasks', listTasks);
 routes.post('/task', validateRequest(addTaskSchema), registerTask);
 routes.put('/task/:id', validateRequest(updateTaskSchema), updateTask);
 routes.delete('/task/:id', deleteTask)
+
+routes.post("/refresh", refreshSession);
 
 module.exports = routes;
