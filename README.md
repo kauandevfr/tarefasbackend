@@ -59,14 +59,13 @@ npm install
 Crie um arquivo `.env` na raiz do projeto:
 
 ```env
-PORT=3000
-NODE_ENV=development
-JWT_KEY=sua_chave_secreta
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=seu_usuario
-DB_PASSWORD=sua_senha
-DB_NAME=tarefas
+PORT=
+DB_URL=
+JWT_KEY=
+PUBLIC_URL=
+APP_URL=
+EMAIL_KEY=
+NODE_ENV=
 ```
 
 ---
@@ -79,10 +78,9 @@ CREATE TABLE users (
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    phone_number VARCHAR(11),
+    phonenumber VARCHAR(11),
     avatar TEXT,
     theme VARCHAR(5) DEFAULT 'dark',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE tasks (
