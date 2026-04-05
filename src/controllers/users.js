@@ -6,6 +6,8 @@ const path = require("path");
 const fs = require("fs/promises");
 const sharp = require("sharp");
 const { deleteRefreshToken, generateAccessToken, generateRefreshToken } = require("../utils/tokens");
+const { compileEmail } = require('../connections/resend');
+const { Resend } = require("resend");
 
 const registerUser = async (req, res) => {
     const { name, email, password } = req.body;
@@ -24,6 +26,20 @@ const registerUser = async (req, res) => {
         const encryptedPassword = await bcrypt.hash(password, 10);
 
         await database("users").insert({ name, email, password: encryptedPassword });
+        const resend = new Resend(process.env.EMAIL_KEY)
+
+        const html = compileEmail('firstAccess', {
+            nome: name,
+            ano: new Date().getFullYear(),
+            url_app: process.env.APP_URL
+        });
+
+        resend.emails.send({
+            from: 'tarefas. <noreply@kauanrodrigues.com.br>',
+            to: email,
+            subject: 'Bem-vindo ao tarefas.',
+            html
+        }).catch(err => console.error('Erro ao enviar email de boas-vindas:', err));
 
         return res.status(201).json({
             message: "Usuário cadastrado com sucesso.",
@@ -310,6 +326,8 @@ const deleteUser = async (req, res) => {
 
 const refreshSession = async (req, res) => {
     const token = req.cookies?.refresh_token;
+    console.log("Cookies recebidos:", req.cookies);
+    console.log("Refresh token:", token);
 
     if (!token) {
         return res.status(401).json({
@@ -320,7 +338,7 @@ const refreshSession = async (req, res) => {
     }
 
     try {
-        const stored = await knex("refresh_tokens").where({ token }).first();
+        const stored = await database("refresh_tokens").where({ token }).first();
 
         if (!stored || new Date(stored.expires_at) < new Date()) {
             if (stored) await deleteRefreshToken(token);

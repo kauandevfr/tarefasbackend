@@ -1,6 +1,6 @@
-const knex = require("../connections/database");
 const jwt = require("jsonwebtoken");
 const validateError = require("../utils/validateError");
+const database = require("../connections/database");
 
 const authentication = async (req, res, next) => {
     const token = req.cookies?.access_token;
@@ -16,7 +16,7 @@ const authentication = async (req, res, next) => {
     try {
         const { id } = jwt.verify(token, process.env.JWT_KEY);
 
-        const user = await knex("users").where({ id }).first();
+        const user = await database("users").where({ id }).first();
 
         if (!user) {
             return res.status(401).json({
