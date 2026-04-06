@@ -8,6 +8,7 @@ const sharp = require("sharp");
 const { deleteRefreshToken, generateAccessToken, generateRefreshToken } = require("../utils/tokens");
 const { compileEmail } = require('../connections/resend');
 const { Resend } = require("resend");
+const crypto = require('crypto');
 
 const registerUser = async (req, res) => {
     const { name, email, password } = req.body;
@@ -385,4 +386,107 @@ const refreshSession = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, logoutUser, listUser, updateUser, uploadAvatar, deleteAvatar, deleteUser, refreshSession }
+const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await database("users").where({ email: email.trim().toLowerCase() }).first();
+
+        if (!user) {
+            return res.status(200).json({
+                message: "Se o email estiver cadastrado, você receberá um link de recuperação.",
+                code: "RESET_EMAIL_SENT",
+                status: 200,
+            });
+        }
+
+        // Invalida tokens anteriores do usuário
+        await database("password_resets").where({ user_id: user.id, used: false }).update({ used: true });
+
+        const token = crypto.randomBytes(64).toString("hex");
+        const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 min
+
+        await database("password_resets").insert({
+            user_id: user.id,
+            token,
+            expires_at: expiresAt,
+        });
+
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+
+        const html = compileEmail('forgotPass', {
+            nome: user.name,
+            ano: new Date().getFullYear(),
+            link: resetLink
+        });
+
+        const resend = new Resend(process.env.EMAIL_KEY)
+
+        resend.emails.send({
+            from: 'tarefas. <noreply@kauanrodrigues.com.br>',
+            to: email,
+            subject: 'tarefas. - Redefinição de senha',
+            html
+        }).catch(err => console.error('Erro ao enviar email de recuperação de senha:', err));
+
+        return res.status(200).json({
+            message: "Se o email estiver cadastrado, você receberá um link de recuperação.",
+            code: "RESET_EMAIL_SENT",
+            status: 200,
+        });
+
+    } catch (error) {
+        return validateError(error, res);
+    }
+};
+
+const resetPassword = async (req, res) => {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    try {
+        const resetRecord = await database("password_resets").where({ token }).first();
+
+        if (!resetRecord) {
+            return res.status(400).json({
+                message: "Link de recuperação inválido.",
+                code: "INVALID_RESET_TOKEN",
+                status: 400,
+            });
+        }
+
+        if (resetRecord.used) {
+            return res.status(400).json({
+                message: "Este link já foi utilizado.",
+                code: "RESET_TOKEN_ALREADY_USED",
+                status: 400,
+            });
+        }
+
+        if (new Date(resetRecord.expires_at) < new Date()) {
+            return res.status(400).json({
+                message: "Link de recuperação expirado.",
+                code: "RESET_TOKEN_EXPIRED",
+                status: 400,
+            });
+        }
+
+        const encryptedPassword = await bcrypt.hash(password, 10);
+
+        await database.transaction(async (trx) => {
+            await trx("users").where({ id: resetRecord.user_id }).update({ password: encryptedPassword });
+            await trx("password_resets").where({ id: resetRecord.id }).update({ used: true });
+            await trx("refresh_tokens").where({ user_id: resetRecord.user_id }).del();
+        });
+
+        return res.status(200).json({
+            message: "Senha redefinida com sucesso.",
+            code: "PASSWORD_RESET_SUCCESS",
+            status: 200,
+        });
+    } catch (error) {
+        return validateError(error, res);
+    }
+};
+
+module.exports = { registerUser, loginUser, logoutUser, listUser, updateUser, uploadAvatar, deleteAvatar, deleteUser, refreshSession, forgotPassword, resetPassword }
