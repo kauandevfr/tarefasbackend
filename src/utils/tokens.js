@@ -31,8 +31,10 @@ const deleteAllUserRefreshTokens = async (userId) => {
 
 const cleanExpiredTokens = async () => {
     try {
-        const deleted = await database("refresh_tokens").where("expires_at", "<", new Date()).del();
-        console.log(`Refresh tokens expirados removidos: ${deleted}`);
+        const deletedRefresh = await database("refresh_tokens").where("expires_at", "<", new Date()).del();
+        const deletedReset = await database("password_resets").where("expires_at", "<", new Date()).del();
+
+        console.log(`Tokens limpos - refresh: ${deletedRefresh}, reset: ${deletedReset}`);
     } catch (err) {
         console.error("Erro ao limpar tokens expirados:", err);
     }

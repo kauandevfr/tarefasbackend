@@ -1,6 +1,5 @@
 const database = require("../connections/database");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const validateError = require("../utils/validateError");
 const path = require("path");
 const fs = require("fs/promises");
@@ -9,6 +8,7 @@ const { deleteRefreshToken, generateAccessToken, generateRefreshToken } = requir
 const { compileEmail } = require('../connections/resend');
 const { Resend } = require("resend");
 const crypto = require('crypto');
+const UAParser = require('ua-parser-js');
 
 const registerUser = async (req, res) => {
     const { name, email, password } = req.body;
@@ -102,6 +102,39 @@ const loginUser = async (req, res) => {
             path: "/refresh",
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
         });
+
+        const agora = new Date();
+
+        const data_hora = agora.toLocaleString("pt-BR", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+
+        const parser = new UAParser(req.headers['user-agent']);
+        const result = parser.getResult();
+
+        const html = compileEmail('newLogin', {
+            nome: user.name,
+            data_hora,
+            dispositivo: `${result.browser.name} no ${result.os.name}`,
+            ip: req.ip,
+            link_alterar_senha: `${process.env.APP_URL}/forgot-pass`,
+            url_app: process.env.APP_URL,
+            url_suporte: process.env.APP_URL,
+            ano: new Date().getFullYear(),
+        });
+
+        const resend = new Resend(process.env.EMAIL_KEY);
+
+        resend.emails.send({
+            from: 'tarefas. <noreply@kauanrodrigues.com.br>',
+            to: user.email,
+            subject: 'Um novo acesso foi detectado.',
+            html
+        }).catch(err => console.error('Erro ao enviar email:', err));
 
         return res.status(200).json({
             message: "Login realizado com sucesso.",
@@ -400,7 +433,6 @@ const forgotPassword = async (req, res) => {
             });
         }
 
-        // Invalida tokens anteriores do usuário
         await database("password_resets").where({ user_id: user.id, used: false }).update({ used: true });
 
         const token = crypto.randomBytes(64).toString("hex");
@@ -445,7 +477,9 @@ const resetPassword = async (req, res) => {
     const { password } = req.body;
 
     try {
-        const resetRecord = await database("password_resets").where({ token }).first();
+        const resetRecord = await database("password_resets")
+            .where({ token })
+            .first();
 
         if (!resetRecord) {
             return res.status(400).json({
@@ -471,13 +505,52 @@ const resetPassword = async (req, res) => {
             });
         }
 
+        const user = await database("users")
+            .where({ id: resetRecord.user_id })
+            .first();
+
         const encryptedPassword = await bcrypt.hash(password, 10);
 
         await database.transaction(async (trx) => {
-            await trx("users").where({ id: resetRecord.user_id }).update({ password: encryptedPassword });
-            await trx("password_resets").where({ id: resetRecord.id }).update({ used: true });
-            await trx("refresh_tokens").where({ user_id: resetRecord.user_id }).del();
+            await trx("users")
+                .where({ id: resetRecord.user_id })
+                .update({ password: encryptedPassword });
+
+            await trx("password_resets")
+                .where({ id: resetRecord.id })
+                .update({ used: true });
+
+            await trx("refresh_tokens")
+                .where({ user_id: resetRecord.user_id })
+                .del();
         });
+
+        const resend = new Resend(process.env.EMAIL_KEY);
+
+        const agora = new Date();
+
+        const data_hora = agora.toLocaleString("pt-BR", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+
+        const html = compileEmail('passwordChanged', {
+            nome: user.name,
+            data_hora,
+            ano: agora.getFullYear(),
+            url_app: process.env.APP_URL,
+            url_suporte: process.env.APP_URL
+        });
+
+        resend.emails.send({
+            from: 'tarefas. <noreply@kauanrodrigues.com.br>',
+            to: user.email,
+            subject: 'Sua senha foi alterada',
+            html
+        }).catch(err => console.error('Erro ao enviar email:', err));
 
         return res.status(200).json({
             message: "Senha redefinida com sucesso.",
