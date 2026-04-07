@@ -329,27 +329,45 @@ const deleteAvatar = async (req, res) => {
 };
 
 const deleteUser = async (req, res) => {
-    const { id, avatar } = req.user;
+    const { id } = req.user;
+    const { password } = req.body;
 
     try {
+        const user = await database("users").where({ id }).first();
+
+        if (!user) {
+            return res.status(404).json({
+                message: "Usuário não encontrado.",
+                code: "USER_NOT_FOUND",
+                status: 404,
+            });
+        }
+
+        const validPassword = await bcrypt.compare(password, user.password);
+
+        if (!validPassword) {
+            return res.status(401).json({
+                message: "Senha incorreta.",
+                code: "INVALID_PASSWORD",
+                status: 401,
+            });
+        }
+
         await database.transaction(async (trx) => {
+            await trx("refresh_tokens").where({ user_id: id }).del();
+            await trx("password_resets").where({ user_id: id }).del();
             await trx("tasks").where({ user_id: id }).del();
             await trx("users").where({ id }).del();
         });
 
-        if (avatar) {
-            const userDir = path.join(process.cwd(), "src", "assets", String(id));
-            try {
-                await fs.rm(userDir, { recursive: true, force: true });
-            } catch (err) {
-                if (err.code !== "ENOENT") {
-                    console.error("Erro ao excluir pasta do usuário:", err);
-                }
-            }
-        }
+        const avatarPath = `assets/${id}`;
+        await fs.rm(avatarPath, { recursive: true, force: true }).catch(() => { });
+
+        res.clearCookie("access_token");
+        res.clearCookie("refresh_token", { path: "/refresh" });
 
         return res.status(200).json({
-            message: "Usuário excluído com sucesso.",
+            message: "Conta excluída com sucesso.",
             code: "USER_DELETED",
             status: 200,
         });
