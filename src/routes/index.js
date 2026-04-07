@@ -20,7 +20,7 @@ const loginLimiter = rateLimit({
 
 const authentication = require('../middlewares/authentication');
 const updateUserSchema = require('../schemas/user/update');
-const { listTasks, registerTask, updateTask, deleteTask } = require('../controllers/tasks');
+const { listTasks, registerTask, updateTask, deleteTask, deleteAllTasks } = require('../controllers/tasks');
 const addTaskSchema = require('../schemas/task/add');
 const updateTaskSchema = require('../schemas/task/update');
 const forgotPasswordSchema = require('../schemas/user/forgotpass');
@@ -46,9 +46,6 @@ routes.get('/tasks', listTasks);
 routes.post('/task', validateRequest(addTaskSchema), registerTask);
 routes.put('/task/:id', validateRequest(updateTaskSchema), updateTask);
 routes.delete('/task/:id', deleteTask)
-
-
-
-
+routes.delete("/tasks", deleteAllTasks);
 
 module.exports = routes;

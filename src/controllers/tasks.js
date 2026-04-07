@@ -101,4 +101,28 @@ const deleteTask = async (req, res) => {
     }
 };
 
-module.exports = { registerTask, updateTask, listTasks, deleteTask };
+const deleteAllTasks = async (req, res) => {
+    const { id } = req.user;
+
+    try {
+        const deleted = await knex("tasks").where({ user_id: id }).del();
+
+        if (!deleted) {
+            return res.status(404).json({
+                message: "Nenhuma tarefa encontrada.",
+                code: "TASKS_NOT_FOUND",
+                status: 404,
+            });
+        }
+
+        return res.status(200).json({
+            message: "Todas as tarefas foram excluídas.",
+            code: "ALL_TASKS_DELETED",
+            status: 200,
+        });
+    } catch (error) {
+        return validateError(error, res);
+    }
+};
+
+module.exports = { registerTask, updateTask, listTasks, deleteTask, deleteAllTasks };
