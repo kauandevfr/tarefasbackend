@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>Até logo — tarefas.</title>
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body,
+    table,
+    td,
+    a {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+
+    table,
+    td {
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+    }
+
+    img {
+      -ms-interpolation-mode: bicubic;
+      border: 0;
+      outline: none;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
+      background-color: #0f0f0f;
+      font-family: 'DM Sans', Arial, sans-serif;
+    }
+
+    @media only screen and (max-width: 600px) {
+      .email-container {
+        width: 100% !important;
+      }
+
+      .card-padding {
+        padding: 32px 24px !important;
+      }
+
+      .btn-cta {
+        width: 100% !important;
+        display: block !important;
+      }
+
+      .divider-col {
+        display: none !important;
+      }
+
+      .footer-links {
+        display: block !important;
+        margin-bottom: 6px !important;
+      }
+
+      .stat-col {
+        padding: 0 4px !important;
+      }
+    }
+  </style>
+</head>
+
+<body style="margin:0; padding:0; background-color:#0f0f0f;">
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+    style="background-color:#0f0f0f; min-height:100vh;">
+    <tr>
+      <td align="center" style="padding: 40px 16px;">
+
+        <table role="presentation" class="email-container" width="580" cellpadding="0" cellspacing="0" border="0"
+          style="max-width:580px; width:100%;">
+
+          <!-- ── LOGO ── -->
+          <tr>
+            <td align="center" style="padding-bottom: 28px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0"
+                style="border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; background-color: #171717;">
+                <tr>
+                  <td style="padding: 10px 20px;">
+                    <span style="font-family: 'DM Serif Display', Georgia, serif;
+                               font-size: 18px;
+                               color: #ffa938; font-weight: bold;">tarefas<span style="color:#f0ede6;">.</span></span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ── CARD PRINCIPAL ── -->
+          <tr>
+            <td>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                style="background-color: #171717;
+                       border: 1px solid rgba(255,255,255,0.07);
+                       border-radius: 16px;
+                       overflow: hidden;">
+
+                <!-- Barra de acento superior -->
+                <tr>
+                  <td height="3" style="background: linear-gradient(90deg, transparent, #ffa938, transparent);
+                                        font-size:0; line-height:0;">&nbsp;</td>
+                </tr>
+
+                <!-- Conteúdo -->
+                <tr>
+                  <td class="card-padding" style="padding: 48px 52px;">
+
+                    <!-- Ícone -->
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px;">
+                      <tr>
+                        <td width="56" height="56" align="center" valign="middle"
+                          style="background-color: rgba(255,169,56,0.07);
+                                 border: 1px solid rgba(255,169,56,0.14);
+                                 border-radius: 14px;
+                                 width: 56px;
+                                 height: 56px;">
+                          <span style="font-size: 22px; line-height: 1;">🕯️</span>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Título -->
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                      style="margin-bottom: 12px;">
+                      <tr>
+                        <td>
+                          <h1 style="font-family: 'DM Serif Display', Georgia, serif;
+                                     font-size: 32px;
+                                     line-height: 1.15;
+                                     color: #f0ede6;
+                                     font-weight: normal;
+                                     margin: 0;">
+                            Até logo,<br>
+                            <em style="color: #ffa938; font-style: italic;">{{nome}}.</em>
+                          </h1>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Linha dourada -->
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
+                      <tr>
+                        <td width="40" height="1"
+                          style="background-color: #ffa938; font-size:0; line-height:0;">&nbsp;</td>
+                      </tr>
+                    </table>
+
+                    <!-- Texto principal -->
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                      style="margin-bottom: 32px;">
+                      <tr>
+                        <td>
+                          <p style="font-family: 'DM Sans', Arial, sans-serif;
+                                    font-size: 15px;
+                                    line-height: 1.7;
+                                    color: #7a7870;
+                                    margin: 0;">
+                            Sua conta no <strong style="color: #f0ede6;">tarefas.</strong> foi excluída
+                            com sucesso em <strong style="color: #f0ede6;">{{data_hora}}</strong>.
+                            Todos os seus dados foram removidos permanentemente dos nossos servidores.
+                            <br><br>
+                            Foi um prazer te ter por aqui. Esperamos que o
+                            <strong style="color: #f0ede6;">tarefas.</strong> tenha te ajudado
+                            a organizar melhor o seu dia — mesmo que por um tempo.
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Separador -->
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                      style="margin-bottom: 28px;">
+                      <tr>
+                        <td height="1"
+                          style="background-color: rgba(255,255,255,0.07); font-size:0; line-height:0;">&nbsp;</td>
+                      </tr>
+                    </table>
+
+                    <!-- Resumo da conta (o que foi deletado) -->
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                      style="margin-bottom: 32px;
+                             background-color: rgba(255,255,255,0.02);
+                             border: 1px solid rgba(255,255,255,0.07);
+                             border-radius: 10px;">
+
+                      <tr>
+                        <td colspan="2"
+                          style="padding: 14px 20px 10px 20px;
+                                 border-bottom: 1px solid rgba(255,255,255,0.05);">
+                          <p style="font-family: 'DM Mono', 'Courier New', monospace;
+                                    font-size: 9px;
+                                    letter-spacing: 1.5px;
+                                    text-transform: uppercase;
+                                    color: #7a7870;
+                                    margin: 0;">o que foi removido</p>
+                        </td>
+                      </tr>
+
+                      <!-- Dados pessoais -->
+                      <tr>
+                        <td width="20" valign="top" style="padding: 12px 0 6px 20px;">
+                          <span style="font-size: 12px;">👤</span>
+                        </td>
+                        <td valign="top" style="padding: 12px 20px 6px 8px;">
+                          <p style="font-family: 'DM Sans', Arial, sans-serif;
+                                    font-size: 13px;
+                                    color: #7a7870;
+                                    line-height: 1.5;
+                                    margin: 0;">
+                            <strong style="color: #f0ede6;">Dados pessoais</strong> — nome, e-mail e foto de perfil
+                          </p>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td colspan="2" height="1"
+                          style="background-color: rgba(255,255,255,0.04); font-size:0; line-height:0;">&nbsp;</td>
+                      </tr>
+
+                      <!-- Tarefas -->
+                      <tr>
+                        <td width="20" valign="top" style="padding: 10px 0 6px 20px;">
+                          <span style="font-size: 12px;">✅</span>
+                        </td>
+                        <td valign="top" style="padding: 10px 20px 6px 8px;">
+                          <p style="font-family: 'DM Sans', Arial, sans-serif;
+                                    font-size: 13px;
+                                    color: #7a7870;
+                                    line-height: 1.5;
+                                    margin: 0;">
+                            <strong style="color: #f0ede6;">Tarefas e categorias</strong> — todo o histórico de atividades
+                          </p>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td colspan="2" height="1"
+                          style="background-color: rgba(255,255,255,0.04); font-size:0; line-height:0;">&nbsp;</td>
+                      </tr>
+
+                      <!-- Preferências -->
+                      <tr>
+                        <td width="20" valign="top" style="padding: 10px 0 14px 20px;">
+                          <span style="font-size: 12px;">⚙️</span>
+                        </td>
+                        <td valign="top" style="padding: 10px 20px 14px 8px;">
+                          <p style="font-family: 'DM Sans', Arial, sans-serif;
+                                    font-size: 13px;
+                                    color: #7a7870;
+                                    line-height: 1.5;
+                                    margin: 0;">
+                            <strong style="color: #f0ede6;">Preferências e configurações</strong> — personalizações da conta
+                          </p>
+                        </td>
+                      </tr>
+
+                    </table>
+
+                    <!-- Separador -->
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                      style="margin-bottom: 28px;">
+                      <tr>
+                        <td height="1"
+                          style="background-color: rgba(255,255,255,0.07); font-size:0; line-height:0;">&nbsp;</td>
+                      </tr>
+                    </table>
+
+                    <!-- Mensagem de retorno -->
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                      style="margin-bottom: 32px;">
+                      <tr>
+                        <td>
+                          <p style="font-family: 'DM Serif Display', Georgia, serif;
+                                    font-size: 18px;
+                                    line-height: 1.5;
+                                    color: #f0ede6;
+                                    font-weight: normal;
+                                    margin: 0 0 12px 0;">
+                            A porta estará sempre aberta.
+                          </p>
+                          <p style="font-family: 'DM Sans', Arial, sans-serif;
+                                    font-size: 14px;
+                                    line-height: 1.7;
+                                    color: #7a7870;
+                                    margin: 0;">
+                            Se mudar de ideia, é só criar uma nova conta. Suas listas de tarefas
+                            vão estar esperando — em branco, prontas para um novo começo.
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- CTA: criar nova conta -->
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 0;">
+                      <tr>
+                        <td align="left">
+                          <!--[if mso]>
+                          <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml"
+                                       xmlns:w="urn:schemas-microsoft-com:office:word"
+                                       href="{{url_cadastro}}"
+                                       style="height:48px; v-text-anchor:middle; width:210px;"
+                                       arcsize="17%"
+                                       fillcolor="#ffa938">
+                            <w:anchorlock/>
+                            <center style="color:#0f0f0f; font-family:'DM Sans',Arial,sans-serif; font-size:14px; font-weight:600;">
+                              Criar nova conta
+                            </center>
+                          </v:roundrect>
+                          <![endif]-->
+                          <!--[if !mso]><!-->
+                          <a href="{{url_cadastro}}" class="btn-cta"
+                            style="display: inline-block;
+                                   background-color: #ffa938;
+                                   color: #0f0f0f;
+                                   font-family: 'DM Sans', Arial, sans-serif;
+                                   font-size: 14px;
+                                   font-weight: 700;
+                                   letter-spacing: 0.2px;
+                                   text-decoration: none;
+                                   padding: 14px 32px;
+                                   border-radius: 8px;
+                                   mso-hide: all;">
+                            Criar nova conta &nbsp;→
+                          </a>
+                          <!--<![endif]-->
+                        </td>
+                      </tr>
+                    </table>
+
+                  </td>
+                </tr>
+
+                <!-- ── RODAPÉ DO CARD: stats ── -->
+                <tr>
+                  <td style="background-color: #171717;
+                             border-top: 1px solid rgba(255,255,255,0.07);
+                             padding: 20px 52px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td class="stat-col" align="center" style="padding: 0 8px;">
+                          <p style="font-family: 'DM Serif Display', Georgia, serif;
+                                    font-size: 22px;
+                                    color: #ffa938;
+                                    margin: 0 0 2px 0;
+                                    line-height: 1;">{{tarefas_criadas}}</p>
+                          <p style="font-family: 'DM Mono', 'Courier New', monospace;
+                                    font-size: 9px;
+                                    letter-spacing: 1px;
+                                    text-transform: uppercase;
+                                    color: #7a7870;
+                                    margin: 0;">tarefas criadas</p>
+                        </td>
+
+                        <td width="1" style="background-color: rgba(255,255,255,0.06); font-size:0;">&nbsp;</td>
+
+                        <td class="stat-col" align="center" style="padding: 0 8px;">
+                          <p style="font-family: 'DM Serif Display', Georgia, serif;
+                                    font-size: 22px;
+                                    color: #ffa938;
+                                    margin: 0 0 2px 0;
+                                    line-height: 1;">{{tarefas_concluidas}}</p>
+                          <p style="font-family: 'DM Mono', 'Courier New', monospace;
+                                    font-size: 9px;
+                                    letter-spacing: 1px;
+                                    text-transform: uppercase;
+                                    color: #7a7870;
+                                    margin: 0;">concluídas</p>
+                        </td>
+
+                        <td width="1" style="background-color: rgba(255,255,255,0.06); font-size:0;">&nbsp;</td>
+
+                        <td class="stat-col" align="center" style="padding: 0 8px;">
+                          <p style="font-family: 'DM Serif Display', Georgia, serif;
+                                    font-size: 22px;
+                                    color: #ffa938;
+                                    margin: 0 0 2px 0;
+                                    line-height: 1;">{{dias_de_conta}}</p>
+                          <p style="font-family: 'DM Mono', 'Courier New', monospace;
+                                    font-size: 9px;
+                                    letter-spacing: 1px;
+                                    text-transform: uppercase;
+                                    color: #7a7870;
+                                    margin: 0;">dias com a gente</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+
+          <!-- ── FOOTER ── -->
+          <tr>
+            <td style="padding: 28px 0 8px 0;">
+
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                style="margin-bottom: 14px;">
+                <tr>
+                  <td align="center">
+                    <a href="{{url_app}}" class="footer-links"
+                      style="font-family: 'DM Mono', 'Courier New', monospace;
+                             font-size: 11px;
+                             color: #7a7870;
+                             text-decoration: none;
+                             margin: 0 10px;">
+                      tarefas.kauanrodrigues.com.br
+                    </a>
+                    <span class="divider-col" style="color: rgba(255,255,255,0.1); font-size: 11px;">|</span>
+                    <a href="{{url_suporte}}" class="footer-links"
+                      style="font-family: 'DM Mono', 'Courier New', monospace;
+                             font-size: 11px;
+                             color: #7a7870;
+                             text-decoration: none;
+                             margin: 0 10px;">
+                      suporte
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center">
+                    <p style="font-family: 'DM Mono', 'Courier New', monospace;
+                              font-size: 10px;
+                              color: rgba(122,120,112,0.5);
+                              margin: 0;">
+                      Desenvolvido por
+                      <a href="https://kauanrodrigues.com.br"
+                        style="color: rgba(122,120,112,0.7); text-decoration: none;">
+                        Kauan Rodrigues
+                      </a>
+                      &nbsp;·&nbsp; tarefas. &nbsp;·&nbsp; {{ano}}
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+
+</html>

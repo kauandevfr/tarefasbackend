@@ -9,6 +9,8 @@ const { compileEmail } = require('../connections/resend');
 const { Resend } = require("resend");
 const crypto = require('crypto');
 const UAParser = require('ua-parser-js');
+const { getDate } = require("../utils/getDate");
+const { differenceInDays } = require("date-fns");
 
 const registerUser = async (req, res) => {
     const { name, email, password } = req.body;
@@ -103,22 +105,12 @@ const loginUser = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
         });
 
-        const agora = new Date();
-
-        const data_hora = agora.toLocaleString("pt-BR", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
-
         const parser = new UAParser(req.headers['user-agent']);
         const result = parser.getResult();
 
         const html = compileEmail('newLogin', {
             nome: user.name,
-            data_hora,
+            data_hora: getDate(),
             dispositivo: `${result.browser.name} no ${result.os.name}`,
             ip: req.ip,
             link_alterar_senha: `${process.env.APP_URL}/forgot-pass`,
@@ -353,6 +345,8 @@ const deleteUser = async (req, res) => {
             });
         }
 
+        const tasks = await database('tasks').where({ user_id: id })
+
         await database.transaction(async (trx) => {
             await trx("refresh_tokens").where({ user_id: id }).del();
             await trx("password_resets").where({ user_id: id }).del();
@@ -365,6 +359,27 @@ const deleteUser = async (req, res) => {
 
         res.clearCookie("access_token");
         res.clearCookie("refresh_token", { path: "/refresh" });
+
+        const resend = new Resend(process.env.EMAIL_KEY)
+
+        const html = compileEmail('accountDeleted', {
+            nome: user.name,
+            data_hora: getDate(),
+            url_cadastro: `${process.env.APP_URL}/login`,
+            tarefas_criadas: tasks.length,
+            tarefas_concluidas: tasks.filter(t => t.completed).length || 0,
+            dias_de_conta: differenceInDays(new Date(), new Date(user.createdat)),
+            url_app: process.env.APP_URL,
+            url_suporte: process.env.APP_URL,
+            ano: new Date().getFullYear(),
+        });
+
+        resend.emails.send({
+            from: 'tarefas. <noreply@kauanrodrigues.com.br>',
+            to: user.email,
+            subject: `Até logo, ${user.name}!`,
+            html
+        }).catch(err => console.error('Erro ao enviar email de boas-vindas:', err));
 
         return res.status(200).json({
             message: "Conta excluída com sucesso.",
@@ -545,20 +560,10 @@ const resetPassword = async (req, res) => {
 
         const resend = new Resend(process.env.EMAIL_KEY);
 
-        const agora = new Date();
-
-        const data_hora = agora.toLocaleString("pt-BR", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
-
         const html = compileEmail('passwordChanged', {
             nome: user.name,
-            data_hora,
-            ano: agora.getFullYear(),
+            data_hora: getDate(),
+            ano: new Date().getFullYear(),
             url_app: process.env.APP_URL,
             url_suporte: process.env.APP_URL
         });
