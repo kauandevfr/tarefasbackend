@@ -25,7 +25,7 @@ const addTaskSchema = require('../schemas/task/add');
 const updateTaskSchema = require('../schemas/task/update');
 const forgotPasswordSchema = require('../schemas/user/forgotpass');
 const resetPasswordSchema = require('../schemas/user/resetpass');
-const deleteAccountSchema = require('../schemas/user/delete');
+const deleteSchema = require('../schemas/user/delete');
 
 routes.post('/user/register', validateRequest(registerUserSchema), registerUser);
 routes.post("/user/login", loginLimiter, validateRequest(loginSchema), loginUser);
@@ -40,12 +40,12 @@ routes.post('/user/logout', logoutUser);
 routes.get('/user', listUser);
 routes.put("/user/avatar", upload.single('avatar'), uploadAvatar)
 routes.delete("/user/avatar", deleteAvatar)
-routes.delete("/user", validateRequest(deleteAccountSchema), deleteUser);
+routes.delete("/user", validateRequest(deleteSchema), deleteUser);
 
 routes.get('/tasks', listTasks);
 routes.post('/task', validateRequest(addTaskSchema), registerTask);
 routes.put('/task/:id', validateRequest(updateTaskSchema), updateTask);
 routes.delete('/task/:id', deleteTask)
-routes.delete("/tasks", deleteAllTasks);
+routes.delete("/tasks", validateRequest(deleteSchema), deleteAllTasks);
 
 module.exports = routes;

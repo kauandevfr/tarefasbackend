@@ -347,7 +347,7 @@ const deleteUser = async (req, res) => {
 
         if (!validPassword) {
             return res.status(401).json({
-                message: "Senha incorreta.",
+                message: "Credencial inválida",
                 code: "INVALID_PASSWORD",
                 status: 401,
             });

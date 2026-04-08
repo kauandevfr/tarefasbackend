@@ -1,5 +1,6 @@
 const knex = require("../connections/database");
 const validateError = require("../utils/validateError");
+const bcrypt = require("bcrypt");
 
 const listTasks = async (req, res) => {
     const { id } = req.user;
@@ -103,8 +104,30 @@ const deleteTask = async (req, res) => {
 
 const deleteAllTasks = async (req, res) => {
     const { id } = req.user;
+    const { password } = req.body;
 
     try {
+
+        const user = await knex("users").where({ id }).first();
+
+        if (!user) {
+            return res.status(404).json({
+                message: "Usuário não encontrado.",
+                code: "USER_NOT_FOUND",
+                status: 404,
+            });
+        }
+
+        const validPassword = await bcrypt.compare(password, user.password);
+
+        if (!validPassword) {
+            return res.status(401).json({
+                message: "Credencial inválida",
+                code: "INVALID_PASSWORD",
+                status: 401,
+            });
+        }
+
         const deleted = await knex("tasks").where({ user_id: id }).del();
 
         if (!deleted) {
