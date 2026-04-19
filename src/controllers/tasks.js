@@ -148,4 +148,65 @@ const deleteAllTasks = async (req, res) => {
     }
 };
 
-module.exports = { registerTask, updateTask, listTasks, deleteTask, deleteAllTasks };
+const listOverdueTasks = async (req, res) => {
+    const { id } = req.user;
+    const today = new Date().toISOString().split('T')[0];
+
+    try {
+        const rows = await knex('tasks')
+            .select(knex.raw("to_char(createdat, 'YYYY-MM-DD') as date"))
+            .count('* as count')
+            .where({ user_id: id, completed: false })
+            .andWhere('createdat', '<', today)
+            .groupBy('createdat')
+            .orderBy('createdat', 'desc');
+
+        return res.status(200).json(rows);
+    } catch (error) {
+        return validateError(error, res);
+    }
+};
+
+const createRecurringTasks = async () => {
+    const today = new Date().toISOString().split('T')[0];
+    const todayDow = new Date().getDay();
+
+    try {
+        const originals = await knex('tasks')
+            .whereNotNull('repeat')
+            .whereNull('origin_id');
+
+        for (const task of originals) {
+            const taskDow = new Date(task.createdat + 'T12:00:00').getDay();
+
+            const shouldCreate =
+                task.repeat === 'daily' ||
+                (task.repeat === 'weekly' && taskDow === todayDow);
+
+            if (!shouldCreate) continue;
+
+            const alreadyExists = await knex('tasks')
+                .where({ origin_id: task.id, createdat: today })
+                .first();
+
+            if (alreadyExists) continue;
+
+            await knex('tasks').insert({
+                title: task.title,
+                description: task.description,
+                priority: task.priority,
+                completed: false,
+                repeat: task.repeat,
+                origin_id: task.id,
+                user_id: task.user_id,
+                createdat: today,
+            });
+        }
+
+        console.log(`[cron] Recorrências criadas para ${today}`);
+    } catch (error) {
+        console.error('[cron] Erro ao criar recorrências:', error);
+    }
+};
+
+module.exports = { registerTask, updateTask, listTasks, deleteTask, deleteAllTasks, listOverdueTasks, createRecurringTasks };

@@ -43,6 +43,15 @@ const addTaskSchema = joi.object({
         .messages({
             "any.required": "Estado obrigatório.",
             "boolean.base": "O estado só pode ser verdadeiro ou falso."
+        }),
+
+    repeat: joi
+        .string()
+        .valid('daily', 'weekly')
+        .optional()
+        .allow(null, '')
+        .messages({
+            "any.only": "Recorrência inválida."
         })
 });
 
