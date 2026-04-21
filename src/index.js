@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const path = require("path");
 const routes = require("./routes");
 const { cleanExpiredTokens } = require("./utils/tokens");
+const { createRecurringTasks } = require("./controllers/tasks");
 
 const app = express();
 
@@ -43,4 +44,7 @@ app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on port ${PORT}`);
     cleanExpiredTokens();
     setInterval(cleanExpiredTokens, 24 * 60 * 60 * 1000);
+
+    createRecurringTasks();
+    setInterval(createRecurringTasks, 24 * 60 * 60 * 1000);
 });

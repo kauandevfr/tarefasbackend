@@ -213,6 +213,7 @@ const updateUser = async (req, res) => {
         if (name) updateData.name = name;
         if (phoneNumber) updateData.phonenumber = phoneNumber;
         if (theme) updateData.theme = theme;
+        if (typeof req.body.highlightOverdue === 'boolean') updateData.highlight_overdue = req.body.highlightOverdue;
 
         if (Object.keys(updateData).length === 0) {
             return res.status(400).json({

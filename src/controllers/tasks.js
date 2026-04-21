@@ -209,4 +209,34 @@ const createRecurringTasks = async () => {
     }
 };
 
-module.exports = { registerTask, updateTask, listTasks, deleteTask, deleteAllTasks, listOverdueTasks, createRecurringTasks };
+const listOverdueDetails = async (req, res) => {
+    const { id } = req.user;
+    const today = new Date().toISOString().split('T')[0];
+
+    try {
+        const tasks = await knex('tasks')
+            .where({ user_id: id, completed: false })
+            .andWhere('createdat', '<', today)
+            .orderBy([{ column: 'createdat', order: 'desc' }, { column: 'priority', order: 'asc' }]);
+
+        const grouped = tasks.reduce((acc, task) => {
+            const date = task.createdat.toISOString
+                ? task.createdat.toISOString().split('T')[0]
+                : String(task.createdat).split('T')[0];
+
+            const existing = acc.find(g => g.date === date);
+            if (existing) {
+                existing.tasks.push(task);
+            } else {
+                acc.push({ date, tasks: [task] });
+            }
+            return acc;
+        }, []);
+
+        return res.status(200).json(grouped);
+    } catch (error) {
+        return validateError(error, res);
+    }
+};
+
+module.exports = { registerTask, updateTask, listTasks, deleteTask, deleteAllTasks, listOverdueTasks, listOverdueDetails, createRecurringTasks };

@@ -29,6 +29,10 @@ const updateUserSchema = joi.object({
     theme: joi.string().allow("").valid("light", "dark").messages({
         "any.only": "O tema deve ser 'light' ou 'dark'.",
     }),
+
+    highlightOverdue: joi.boolean().messages({
+        "boolean.base": "O valor deve ser verdadeiro ou falso.",
+    }),
 })
     .when(joi.object({ newPassword: joi.exist() }).unknown(), {
         then: joi.object({
